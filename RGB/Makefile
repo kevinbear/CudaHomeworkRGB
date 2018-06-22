@@ -1,6 +1,6 @@
 CXX = g++
 SRC = ./src/
-Hough:
+RGB:
 	$(CXX) -c $(SRC)*.cpp
 	$(CXX) *.o -o RGB
 	rm -rf *.o

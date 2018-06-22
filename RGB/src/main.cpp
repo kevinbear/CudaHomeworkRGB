@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <typeinfo>
 #include "bmp.h"
