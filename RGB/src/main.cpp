@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include "bmp.h"
 #define _RGB_VALUE_CHANGE_  "RGB"
+//#define __HAVE_NVIDIA_DEVICE__ "840M" // My laptop Nvidia GPU Name (You can modify to your computer version eg. "1080","1070"... )
 using namespace std;
 
 //const char* _RGB_VALUE_CHANGE_ = "RGB";
@@ -15,10 +16,44 @@ int r[MaxBMPSizeX][MaxBMPSizeY]={0};
 int g[MaxBMPSizeX][MaxBMPSizeY]={0};
 int b[MaxBMPSizeX][MaxBMPSizeY]={0};
 int rgb_offest[3]={0,0,0};
+
+#ifdef __HAVE_NVIDIA_DEVICE__
+#define __KERNEL_FUNCTION__ "-g"
+extern void Cuda_Change_RGB(int (&R)[MaxBMPSizeX][MaxBMPSizeY], int (&G)[MaxBMPSizeX][MaxBMPSizeY], int (&B)[MaxBMPSizeX][MaxBMPSizeY],
+                       	    int (&r)[MaxBMPSizeX][MaxBMPSizeY], int (&g)[MaxBMPSizeX][MaxBMPSizeY], int (&b)[MaxBMPSizeX][MaxBMPSizeY],
+                       	    int width,int height,int (&rgb_offest)[3]);
+#endif
+
 extern void edge_detector(int (&R)[MaxBMPSizeX][MaxBMPSizeY],int (&G)[MaxBMPSizeX][MaxBMPSizeY],int (&B)[MaxBMPSizeX][MaxBMPSizeY],int (&r)[MaxBMPSizeX][MaxBMPSizeY],int (&g)[MaxBMPSizeX][MaxBMPSizeY],int (&b)[MaxBMPSizeX][MaxBMPSizeY], int width,int height);
-extern void change_rgb(int (&R)[MaxBMPSizeX][MaxBMPSizeY], int (&G)[MaxBMPSizeX][MaxBMPSizeY], int (&B)[MaxBMPSizeX][MaxBMPSizeY],
+void change_rgb(int (&R)[MaxBMPSizeX][MaxBMPSizeY], int (&G)[MaxBMPSizeX][MaxBMPSizeY], int (&B)[MaxBMPSizeX][MaxBMPSizeY],
                        int (&r)[MaxBMPSizeX][MaxBMPSizeY], int (&g)[MaxBMPSizeX][MaxBMPSizeY], int (&b)[MaxBMPSizeX][MaxBMPSizeY],
-                       int width,int height,int (&rgb_offest)[3]);
+                       int width,int height,int (&rgb_offest)[3]){
+    // change color on image data
+     for(int i=0;i<height;i++){
+       for(int j=0;j<width;j++){
+         if(rgb_offest[1] == 0 && rgb_offest[2] == 0 ){
+           r[i][j] = rgb_offest[0];
+           g[i][j] = G[i][j] + rgb_offest[1];
+           b[i][j] = B[i][j] + rgb_offest[2];
+         }
+         else if(rgb_offest[0] == 0 && rgb_offest[1] == 0 ){
+           r[i][j] = R[i][j] + rgb_offest[0];
+           g[i][j] = G[i][j] + rgb_offest[1];
+           b[i][j] = rgb_offest[2];
+         }
+         else if(rgb_offest[0] == 0 && rgb_offest[2] == 0 ){
+           r[i][j] = R[i][j] + rgb_offest[0];
+           g[i][j] = rgb_offest[1];
+           b[i][j] = B[i][j] + rgb_offest[2];
+         }
+         else{
+           r[i][j] = R[i][j] + rgb_offest[0];
+           g[i][j] = G[i][j] + rgb_offest[1];
+           b[i][j] = B[i][j] + rgb_offest[2];
+         }
+     }
+   }
+}
 
 int main(int argc,char* argv[])
 {
@@ -36,13 +71,13 @@ int main(int argc,char* argv[])
         name = argv[1];
         outputname = argv[2];
     }
-    else if (argc == 4){
+    else if (argc >= 4){
         name = argv[1];
         outputname = argv[2];
         cout<<argv[3]<<endl;
-        cout<<typeid(argv[3]).name()<<endl;
+        //cout<<typeid(argv[3]).name()<<endl;
         const char *functionality = argv[3];
-        cout<<typeid(functionality).name()<<endl;
+        //cout<<typeid(functionality).name()<<endl;
         if (strcmp(functionality,_RGB_VALUE_CHANGE_) == 0){
           cout<<"Input RGB Value: "<<"\neg. (10,30,20)"<<endl; // hint input format
           cin>>s; //get the string
@@ -59,7 +94,17 @@ int main(int argc,char* argv[])
           int width,height;
           // open bmp
           open_bmp(name,R,G,B,width,height);
-          change_rgb(R,G,B,r,g,b,width,height,rgb_offest);
+	  // exaime the arg "-g" 
+	  #ifdef __HAVE_NVIDIA_DEVICE__
+	  if (argv[4] == __KERNEL_FUNCTION__ && argv[4] != NULL){ //use gpu function
+	  	Cuda_Change_RGB(R, G, B, r, g, b, width, height, rgb_offest);
+	  }
+	  else{ //use cpu function
+		change_rgb(R, G, B, r, g, b, width, height, rgb_offest);	
+	  }
+	  #else
+	  change_rgb(R, G, B, r, g, b, width, height, rgb_offest);
+	  #endif
           //edge_detector(R,G,B,r,g,b,width,height);
           save_bmp(outputname,r,g,b);
           cout<<"Job Finish"<<endl;
