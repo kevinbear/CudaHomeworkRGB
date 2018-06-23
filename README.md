@@ -18,7 +18,6 @@
 ### Working Parameter
 1. Terminal will show following :
 ```bash
-RGB
 Input RGB Value: 
 eg. (10,30,20)
 ```
