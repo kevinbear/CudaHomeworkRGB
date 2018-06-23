@@ -1,5 +1,5 @@
 # CudaHomeworkRGB
-+ How to Use 
+### How to Use 
  ```bash
     $ git clone https://github.com/kevinbear/CudaHomeworkRGB.git
     $ cd /your/computer/project/path
@@ -14,3 +14,14 @@
  + input.bmp : In my prject alreadly have two bmp image (dog.bmp, pengin.bmp)
  + output.bmp : Input the output bmp image name
  + RGB : This is mode "RGB" denoted that cpu computation mode; "RGB -g" denoted that gpu computation mode
+-----------------------------------------------------------------------------------------------------------
+### Working Parameter
+1. Terminal will show following :
+```bash
+RGB
+Input RGB Value: 
+eg. (10,30,20)
+```
+2. You must input rgb data : (120,0,0) or (0,120,0) or (0,0,120) or (10,100,255) etc...
+3. 
+
