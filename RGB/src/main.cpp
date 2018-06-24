@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include "bmp.h"
 #define _RGB_VALUE_CHANGE_  "RGB"
-//#define __HAVE_NVIDIA_DEVICE__ "840M" // My laptop Nvidia GPU Name (You can modify to your computer version eg. "1080","1070"... )
+#define __HAVE_NVIDIA_DEVICE__ "840M" // My laptop Nvidia GPU Name (You can modify to your computer version eg. "1080","1070"... )
 using namespace std;
 
 //const char* _RGB_VALUE_CHANGE_ = "RGB";
@@ -63,7 +63,7 @@ int main(int argc,char* argv[])
     //char *functionality = NULL; // progamming mode select
     char s[20]; //sscanf s parament
     if (argc < 3){
-        cout<<"commad format error!"<<endl;
+        cout<<"commad format error!"<<__KERNEL_FUNCTION__<<endl;
         cout<<"./Hough 'img path & img' 'output img name' "<<endl;
         return 0;
     }
@@ -74,7 +74,6 @@ int main(int argc,char* argv[])
     else if (argc >= 4){
         name = argv[1];
         outputname = argv[2];
-        cout<<argv[3]<<endl;
         //cout<<typeid(argv[3]).name()<<endl;
         const char *functionality = argv[3];
         //cout<<typeid(functionality).name()<<endl;
@@ -96,13 +95,17 @@ int main(int argc,char* argv[])
           open_bmp(name,R,G,B,width,height);
 	  // exaime the arg "-g" 
 	  #ifdef __HAVE_NVIDIA_DEVICE__
-	  if (argv[4] == __KERNEL_FUNCTION__ && argv[4] != NULL){ //use gpu function
+	  const char* gpumode = argv[4];
+	  if (strcmp(gpumode,__KERNEL_FUNCTION__) == 0){ //use gpu function
+		cout<<"GPU:"<<__HAVE_NVIDIA_DEVICE__<<" GPU mode activate"<<endl;
 	  	Cuda_Change_RGB(R, G, B, r, g, b, width, height, rgb_offest);
 	  }
 	  else{ //use cpu function
+		cout<<"CPU mode activate"<<endl;
 		change_rgb(R, G, B, r, g, b, width, height, rgb_offest);	
 	  }
 	  #else
+	  cout<<"CPU mode activate"<<endl;
 	  change_rgb(R, G, B, r, g, b, width, height, rgb_offest);
 	  #endif
           //edge_detector(R,G,B,r,g,b,width,height);
