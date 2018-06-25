@@ -22,4 +22,5 @@ Input RGB Value:
 eg. (10,30,20)
 ```
 2. You must input rgb data : (120,0,0) or (0,120,0) or (0,0,120) or (10,100,255) etc...
+    + Data Format: (R,G,B) --> (100,0,0)
 
